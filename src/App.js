@@ -1,25 +1,59 @@
-import logo from './logo.svg';
-import './App.css';
+/* eslint-disable jsx-a11y/alt-text */
+import "./App.css";
+import { useEffect, useState } from "react";
+import { getMovieList, searchMovie } from "./api";
 
-function App() {
+const App = () => {
+  const [popularMovies, setPopularMovies] = useState([]);
+
+  useEffect(() => {
+    getMovieList().then((result) => {
+      setPopularMovies(result);
+    });
+  }, []);
+
+  const PopularMovies = () => {
+    const baseImg = process.env.REACT_APP_BASE_IMGURL;
+    return popularMovies.map((movie, i) => {
+      return (
+        <div className="Movie-wrapper" key={i}>
+          <div className="Movie-title">{movie.title}</div>
+          <img
+            className="Movie-image"
+            src={`${baseImg}/${movie.poster_path}`}
+          />
+          <div className="Movie-date">{movie.release_date}</div>
+          <div className="Movie-rate">Rate {movie.vote_average}</div>
+        </div>
+      );
+    });
+  };
+
+  const search = async (q) => {
+    const query = await searchMovie(q);
+    if (q.length > 5) {
+      setPopularMovies(query.results);
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <h1>TheDruuCinemax </h1>
+        <p>Nonton gratiss gak pake bayar!</p>
+        <input
+          className="Movie-search"
+          placeholder="cari film kesayangan..."
+          onChange={({ target }) => {
+            search(target.value);
+          }}
+        ></input>
+        <div className="Movie-container">
+          <PopularMovies />
+        </div>
       </header>
     </div>
   );
-}
+};
 
 export default App;
